@@ -1,0 +1,35 @@
+const reverse = require('../utils/for_testing').reverse
+
+// 第一个测试用例
+test('reverse of a', () => {
+  const result = reverse('a')
+  expect(result).toBe('a')
+})
+
+// 第二个测试用例
+test('reverse of react', () => {
+  const result = reverse('react')
+  expect(result).toBe('tcaer')
+})
+
+// 第三个测试用例
+test('reverse of releveler', () => {
+  const result = reverse('releveler')
+  expect(result).toBe('releveler')
+})
+
+const average = require('../utils/for_testing').average
+
+describe('average', () => {  // 使用describe函数来顶一个测试套件
+  test('一个值的平均值是它自己', () => {
+    expect(average([1])).toBe(1)  // toBe函数是严格相等
+  })
+
+  test('测试多个值的平均值是否计算正确，[1,2,3,4,5,6]的平均值是3.5', () => {
+    expect(average([1, 2, 3, 4, 5, 6])).toBe(3.5)
+  })
+
+  test('空数组的平均值是0', () => {
+    expect(average([])).toBe(0)
+  })
+})
