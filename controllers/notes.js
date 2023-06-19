@@ -1,10 +1,12 @@
 const notesRouter = require('express').Router()
-// 导入note模块
 const Note = require('../models/note')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 // #1 处理 get all 请求
 notesRouter.get('/', async (req, res) => {
   await Note.find()
+    .populate('user')
     .then((notes) => {
       res.json(notes) // json方法自动调用toJSON
     })
@@ -14,9 +16,26 @@ notesRouter.get('/', async (req, res) => {
     })
 })
 
+// #2的辅助函数，从req中获取token
+const getTokenFrom = req => {
+  const authorization = req.get('Authorization') // 获取req的head中authorization字段的值
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7) // 返回从第7个字符开始到末尾的子字符串，即去掉'bearer '的部分，就是令牌
+  }
+  return null
+}
+
 // #2 处理 post 请求
-notesRouter.post('/', async (req, res) => {
+notesRouter.post('/', async (req, res, next) => {
   const { body } = req //  从request对象的body属性中获取note数据
+
+  // 用户鉴权
+  const token = getTokenFrom(req)
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: 'token missing or invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
 
   // 如果请求的body为空，则返回400 bad request: content missing
   if (!body.content) {
@@ -29,9 +48,14 @@ notesRouter.post('/', async (req, res) => {
     content: body.content,
     important: body.important || false,
     date: new Date(),
+    user: user._id,
   })
 
   const savedNote = await note.save() // 调用note.save()方法向数据库写入note这个document
+
+  user.notes = user.notes.concat(savedNote._id)
+  await user.save()
+
   res.status(201).json(savedNote)
 })
 
