@@ -1,6 +1,8 @@
 // 从note模块中导入Note对象，note模块完成了noteSchema的定义、根
 // 据noteSchema创建了Note模型对象，最后导出Note
 const Note = require('../models/note')
+const User = require('../models/user')
+
 
 const initialNotes = [
   {
@@ -35,6 +37,18 @@ const nonExistingId = async () => {
   return id
 }
 
+// 下面是users的辅助函数 
+
+const usersInDb = async () => {
+  const content = await User.find({})
+  // console.log('1', content)
+  return content.map(u => u.toJSON()) // toJSON方法把模型对象转换成JSON格式的普通js对象
+  // 当你从数据库中检索到一个 Mongoose 模型对象时，它包含了很多 Mongoose 特定的属性和方法，通过调用 
+  // toJSON() 方法，你可以将其转换为普通的 JSON 对象，只保留原始数据和自定义字段，而过滤掉 Mongoose 
+  // 特有的属性
+}
+
 module.exports = {
-  initialNotes, notesInDb, nonExistingId
+  initialNotes, notesInDb, nonExistingId,
+  usersInDb
 }
