@@ -86,22 +86,25 @@ notesRouter.put('/:id', async (req, res, next) => {
     important: body.important,
   }
 
+  let updatedNote = null // 必须在try-catch之外声明updatedNote，否则出错以后，catch块之内如果出现updatedNote，就会报错：未定义
+
   // 第三个参数{new:true}，其实是一个对象，叫做options。里面的第一个属性new表
   // 示在更新完成后，是否返回更新后的文档，默认是false不返回。这里改成了true
-  await Note.findByIdAndUpdate(
-    req.params.id,
-    note,
-    {
-      new: true,
-      runValidators: true,
-      context: 'query', // 默认情况，验证器的会更新整个文档，这里手动设定上下
-      // 文为query，即仅验证本次更新的字段
-    },
-  )
-    .then((updatedNote) => {
-      res.json(updatedNote)
-    })
-    .catch((err) => next(err))
+  try {
+    const updatedNote = await Note.findByIdAndUpdate(
+      req.params.id,
+      note,
+      {
+        new: true,
+        runValidators: true,
+        context: 'query', // 默认情况，验证器的会更新整个文档，这里手动设定上下
+        // 文为query，即仅验证本次更新的字段
+      },
+    )
+    res.json(updatedNote)
+  } catch (err) {
+    next(err)
+  }
 })
 
 module.exports = notesRouter
