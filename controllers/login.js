@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const { response } = require('express')
 const jwt = require('jsonwebtoken')
 
-
+// 处理登录请求
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body
   console.log('pwd:', password)
